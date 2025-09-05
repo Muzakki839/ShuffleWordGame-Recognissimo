@@ -1,6 +1,10 @@
 using Recognissimo.Components;
 using TMPro;
 using UnityEngine;
+
+/// <summary>
+/// Get speech recognition result into string
+/// </summary>
 public class RecognitionListener : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI resultText;
