@@ -2229,7 +2229,9 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   settings:
-    vocabulary: []
+    vocabulary:
+    - hi
+    - test
     enableDetails: 0
     alternatives: 0
     partialResultReady:
