@@ -20,7 +20,7 @@ public class RecognitionListener : MonoBehaviour
         {
             resultText.text = partialResult.partial;
         }
-        // check answer with as soon as partial result is available
+        // check answer as soon as partial result is available
         QuizManager.Instance.CheckAnswer(partialResult.partial);
     }
     public void OnResult(Result result)
