@@ -25,6 +25,7 @@ public class RecognitionListener : MonoBehaviour
     }
     public void OnResult(Result result)
     {
+        Debug.Log($"<color=yellow>{result.text}</color>");
         // if fail to answer correctly before final result, treat as incorrect
         QuizManager.Instance.InvokeResultEvent(false);
     }
