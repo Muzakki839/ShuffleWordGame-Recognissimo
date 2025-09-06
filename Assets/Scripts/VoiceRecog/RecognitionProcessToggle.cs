@@ -2,23 +2,19 @@ using Recognissimo.Components;
 using UnityEngine;
 
 /// <summary>
-/// Toggle speech recognition processing on and off
+/// Toggle speech recognition processing on and off based on the recognizer’s current state.
 /// </summary>
 public class RecognitionProcessToggle : MonoBehaviour
 {
-    private bool isProcessing = false;
-
     public void ToggleProcessing(SpeechRecognizer recognizer)
     {
-        if (isProcessing)
+        if (recognizer.State == Recognissimo.SpeechProcessorState.Processing)
         {
             recognizer.StopProcessing();
-            isProcessing = false;
         }
         else
         {
             recognizer.StartProcessing();
-            isProcessing = true;
         }
     }
 }

@@ -7,6 +7,7 @@ using UnityEngine;
 /// </summary>
 public class RecognitionListener : MonoBehaviour
 {
+    [Tooltip("Optional UI text to display recognition results")]
     [SerializeField] private TextMeshProUGUI resultText;
 
     private string PartialResult { get; }
@@ -19,14 +20,13 @@ public class RecognitionListener : MonoBehaviour
         {
             resultText.text = partialResult.partial;
         }
+        // check answer with as soon as partial result is available
+        QuizManager.Instance.CheckAnswer(partialResult.partial);
     }
     public void OnResult(Result result)
     {
-        Debug.Log($"<color=green>{result.text}</color>");
-        if (resultText != null)
-        {
-            resultText.text = result.text;
-        }
+        // if fail to answer correctly before final result, treat as incorrect
+        QuizManager.Instance.InvokeResultEvent(false);
     }
 
     public string GetResult()

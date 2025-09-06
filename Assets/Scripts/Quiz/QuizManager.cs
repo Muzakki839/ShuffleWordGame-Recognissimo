@@ -1,13 +1,15 @@
-using System.Collections;
 using System.Collections.Generic;
 using Recognissimo.Components;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class QuizManager : MonoBehaviour
+public class QuizManager : Singleton<QuizManager>
 {
     [SerializeField] private List<string> wordOptions = new();
+    [Header("Quiz Data")]
+    [SerializeField] private Questions questionsData;
 
     [Header("Voice Recognition")]
     [SerializeField] private RecognitionListener recognitionListener;
@@ -21,15 +23,23 @@ public class QuizManager : MonoBehaviour
     [Header("Layout Settings")]
     [SerializeField] private int maxColumns = 4;
 
+    [Header("Result Event")]
+    public UnityEvent startEvent;
+    public UnityEvent correctEvent;
+    public UnityEvent incorrectEvent;
+
     private int currentColumn = 0;
     private Transform currentRow;
+    private int currentQuestionIndex = 0;
 
     private void Start()
     {
-        // Test: spawn some words
-        foreach (var word in wordOptions) { SpawnWord(word); }
-        // Test: set speech recognizer vocabulary
-        speechRecognizer.Vocabulary = wordOptions;
+        StartCurrentQuiz();
+
+        // // Test: spawn some words
+        // foreach (var word in wordOptions) { SpawnWord(word); }
+        // // Test: set speech recognizer vocabulary
+        // speechRecognizer.Vocabulary = wordOptions;
     }
 
     private void SpawnWord(string word)
@@ -61,29 +71,56 @@ public class QuizManager : MonoBehaviour
         currentColumn = 0;
     }
 
-    public void StartQuiz(List<string> newWords)
+    private void StartQuiz(List<string> newWords)
     {
+        startEvent?.Invoke();
         ClearWords();
 
         // spawn new words
-        wordOptions = newWords;
+        wordOptions = ListManipulator.ShuffleList(newWords);
         foreach (var word in wordOptions) { SpawnWord(word); }
 
         // set speech recognizer vocabulary
         speechRecognizer.Vocabulary = wordOptions;
     }
 
-    public void CheckAnswer(string answer)
+    public void StartCurrentQuiz()
     {
-        string recognizedText = recognitionListener.GetResult();
-        if (recognizedText.Equals(answer, System.StringComparison.OrdinalIgnoreCase))
+        StartQuiz(questionsData.questions[currentQuestionIndex].options);
+    }
+
+    public bool CheckAnswer(string answer)
+    {
+        string correctAnswer = questionsData.questions[currentQuestionIndex].correctAnswer;
+        if (answer == correctAnswer)
         {
             Debug.Log("Correct!");
+
+            // set to next question or loop back to first question
+            currentQuestionIndex = (currentQuestionIndex + 1) % questionsData.questions.Count;
+
+            // make sure correct answer event invoked as soon as possible it's correct
+            InvokeResultEvent(true);
+            return true;
         }
         else
         {
-            Debug.Log($"Incorrect! You said: {recognizedText}, but the correct answer was: {answer}");
+            Debug.Log($"Incorrect! You said: {answer}, but the correct answer was: {correctAnswer}");
+            return false;
         }
+    }
+
+    public void InvokeResultEvent(bool isCorrect)
+    {
+        if (isCorrect)
+        {
+            correctEvent?.Invoke();
+        }
+        else
+        {
+            incorrectEvent?.Invoke();
+        }
+        speechRecognizer.StopProcessing();
     }
 
 }
